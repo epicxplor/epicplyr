@@ -4,11 +4,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Live Player</title>
+<meta name="theme-color" content="#080b12">
+<title>EPICPLYR - Video Player</title>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js"></script>
 
 <style>
+:root {
+    --bg: #080b12;
+    --panel: #111722;
+    --border: #222c3b;
+    --text: #f5f7fb;
+    --muted: #8792a5;
+    --accent: #e11d48;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -16,149 +26,373 @@
 }
 
 body {
-    background: #080808;
-    color: #fff;
-    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
 }
 
-.player-container {
-    width: 100%;
-    max-width: 1100px;
+.container {
+    width: min(1100px, 94%);
+    margin: auto;
+    padding: 25px 0 40px;
 }
 
 .header {
-    padding: 15px 0;
-    font-size: 20px;
-    font-weight: bold;
-    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
-.video-box {
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.logo {
+    width: 39px;
+    height: 39px;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    font-size: 19px;
+}
+
+.live {
+    color: #fb7185;
+    border: 1px solid #632338;
+    background: #321321;
+    border-radius: 20px;
+    padding: 7px 12px;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.player-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.video-wrapper {
+    position: relative;
+    background: #000;
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: #000;
-    position: relative;
-    overflow: hidden;
     border-radius: 10px;
+    overflow: hidden;
 }
 
 video {
+    display: block;
     width: 100%;
     height: 100%;
-    display: block;
     object-fit: contain;
     background: #000;
 }
 
-.message {
-    color: #aaa;
+.status {
+    color: var(--muted);
+    font-size: 13px;
     text-align: center;
-    margin-top: 15px;
-    font-size: 14px;
+    padding: 15px 5px 8px;
+    min-height: 38px;
 }
 
+.status.error {
+    color: #fb7185;
+}
+
+.controls-area {
+    padding: 17px 5px 5px;
+}
+
+.url-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 9px;
+    display: block;
+}
+
+.url-form {
+    display: flex;
+    gap: 9px;
+}
+
+.url-input {
+    flex: 1;
+    min-width: 0;
+    height: 45px;
+    background: #080d16;
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 12px;
+    outline: none;
+    font-size: 13px;
+}
+
+.url-input:focus {
+    border-color: var(--accent);
+}
+
+.play-button {
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 8px;
+    padding: 0 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.play-button:hover {
+    background: #be123c;
+}
+
+.footer {
+    text-align: center;
+    color: #667085;
+    font-size: 11px;
+    margin-top: 24px;
+}
+
+@media(max-width:600px) {
+    .container {
+        width: 100%;
+        padding: 15px 10px 30px;
+    }
+
+    .header {
+        margin-bottom: 17px;
+    }
+
+    .brand {
+        font-size: 18px;
+    }
+
+    .player-card {
+        padding: 6px;
+        border-radius: 11px;
+    }
+
+    .url-form {
+        flex-direction: column;
+    }
+
+    .url-input,
+    .play-button {
+        height: 45px;
+        width: 100%;
+    }
+}
 </style>
 </head>
 
 <body>
 
-<div class="player-container">
+<div class="container">
 
-    <div class="header">MY LIVE PLAYER</div>
+    <header class="header">
+        <div class="brand">
+            <div class="logo">▶</div>
+            <span>EPICPLYR</span>
+        </div>
+        <div class="live">VIDEO PLAYER</div>
+    </header>
 
-    <div class="video-box">
-        <video id="video" controls playsinline
-        webkit-playsinline></video>
-    </div>
+    <main class="player-card">
 
-    <div class="message" id="message">
-        Loading player...
-    </div>
+        <div class="video-wrapper" id="videoWrapper">
+            <video
+                id="video"
+                controls
+                playsinline
+                webkit-playsinline
+                preload="metadata">
+            </video>
+        </div>
+
+        <div class="status" id="status">
+            Enter a video URL to start playback.
+        </div>
+
+        <div class="controls-area">
+            <label class="url-label" for="streamUrl">
+                VIDEO / STREAM URL
+            </label>
+
+            <form class="url-form" id="urlForm">
+                <input
+                    class="url-input"
+                    id="streamUrl"
+                    type="url"
+                    placeholder="Paste .m3u8 or .mp4 URL here"
+                    autocomplete="off"
+                    required>
+
+                <button class="play-button" type="submit">
+                    PLAY VIDEO
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        POWERED BY EPICPLYR
+    </footer>
 
 </div>
 
 <script>
 const video = document.getElementById("video");
-const message = document.getElementById("message");
+const statusBox = document.getElementById("status");
+const urlInput = document.getElementById("streamUrl");
+const urlForm = document.getElementById("urlForm");
 
-const params = new URLSearchParams(window.location.search);
-const streamURL = params.get("url");
+let hls = null;
 
-let hls;
-
-function showMessage(text) {
-    message.textContent = text;
+function setStatus(message, isError = false) {
+    statusBox.textContent = message;
+    statusBox.className = isError
+        ? "status error"
+        : "status";
 }
 
-function loadPlayer(url) {
-
-    if (!url) {
-        showMessage("No video URL provided.");
-        return;
+function stopCurrentPlayer() {
+    if (hls) {
+        hls.destroy();
+        hls = null;
     }
+
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+}
+
+function playStream(rawUrl, updateAddress = true) {
+
+    let stream;
 
     try {
-        const parsed = new URL(url);
+        stream = new URL(rawUrl);
 
-        if (!["http:", "https:"].includes(parsed.protocol)) {
-            showMessage("Invalid video URL.");
-            return;
+        if (!["http:", "https:"].includes(stream.protocol)) {
+            throw new Error("Invalid protocol");
         }
+
     } catch (error) {
-        showMessage("Invalid video URL.");
+        setStatus("Please enter a valid HTTP or HTTPS video URL.", true);
         return;
     }
 
-    showMessage("Connecting to stream...");
+    stopCurrentPlayer();
 
-    if (Hls.isSupported()) {
+    const url = stream.href;
+    urlInput.value = url;
 
-        hls = new Hls();
+    if (updateAddress) {
+        const newAddress = new URL(window.location.href);
+        newAddress.searchParams.set("url", url);
 
-        hls.loadSource(url);
-        hls.attachMedia(video);
+        window.history.replaceState({}, "", newAddress);
+    }
 
-        hls.on(Hls.Events.MANIFEST_PARSED, function() {
-            showMessage("Stream ready. Press play.");
-        });
+    const isHLS = /\.m3u8$/i.test(stream.pathname);
 
-        hls.on(Hls.Events.ERROR, function(event, data) {
-            if (data.fatal) {
-                showMessage("Unable to play stream. Check the URL or server access.");
-                hls.destroy();
-            }
-        });
+    setStatus("Connecting to video...");
 
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    if (isHLS) {
 
-        video.src = url;
-        showMessage("Stream ready. Press play.");
+        if (window.Hls && Hls.isSupported()) {
+
+            hls = new Hls({
+                enableWorker: true
+            });
+
+            hls.loadSource(url);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                setStatus("Stream ready. Press play.");
+            });
+
+            hls.on(Hls.Events.ERROR, (event, data) => {
+
+                if (!data.fatal) return;
+
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    setStatus("Network error. Check the stream or try again.", true);
+                    hls.startLoad();
+                } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                    setStatus("Recovering media playback...");
+                    hls.recoverMediaError();
+                } else {
+                    setStatus("Unable to play this HLS stream.", true);
+                    hls.destroy();
+                    hls = null;
+                }
+            });
+
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+
+            video.src = url;
+            setStatus("HLS stream ready. Press play.");
+
+        } else {
+
+            setStatus("HLS is not supported in this browser.", true);
+        }
 
     } else {
 
-        showMessage("Your browser does not support this stream format.");
-
+        video.src = url;
+        setStatus("MP4 video loaded. Press play.");
     }
 }
 
+urlForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    playStream(urlInput.value.trim());
+});
+
 video.addEventListener("playing", () => {
-    showMessage("Playing");
+    setStatus("Playing video");
 });
 
 video.addEventListener("waiting", () => {
-    showMessage("Buffering...");
+    setStatus("Buffering video...");
 });
 
 video.addEventListener("error", () => {
-    showMessage("Video playback error.");
+    if (video.error) {
+        setStatus("Video error. Check the URL, format or server access.", true);
+    }
 });
 
-loadPlayer(streamURL);
+window.addEventListener("DOMContentLoaded", () => {
+
+    const params = new URLSearchParams(window.location.search);
+    const stream = params.get("url");
+
+    if (stream) {
+        urlInput.value = stream;
+        playStream(stream, false);
+    } else {
+        setStatus("Ready. Paste an HLS or MP4 URL.");
+    }
+
+});
 </script>
 
 </body>
