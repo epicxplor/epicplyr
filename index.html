@@ -3,196 +3,110 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080b12">
-<title>EPICPLYR - Video Player</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<title>EPICPLYR</title>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js"></script>
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 
 <style>
-:root {
-    --bg: #080b12;
-    --panel: #111722;
-    --border: #222c3b;
-    --text: #f5f7fb;
-    --muted: #8792a5;
-    --accent: #e11d48;
-}
-
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
-body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
-    min-height: 100vh;
-}
-
-.container {
-    width: min(1100px, 94%);
-    margin: auto;
-    padding: 25px 0 40px;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    font-size: 21px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
-
-.logo {
-    width: 39px;
-    height: 39px;
-    background: var(--accent);
-    display: grid;
-    place-items: center;
-    border-radius: 11px;
-    font-size: 19px;
-}
-
-.live {
-    color: #fb7185;
-    border: 1px solid #632338;
-    background: #321321;
-    border-radius: 20px;
-    padding: 7px 12px;
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-.player-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    padding: 10px;
-    overflow: hidden;
-}
-
-.video-wrapper {
-    position: relative;
-    background: #000;
+html, body {
     width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 10px;
+    height: 100%;
+    height: 100dvh;
     overflow: hidden;
+    background: #000;
+}
+
+.player-container {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    position: fixed;
+    inset: 0;
+    background: #000;
 }
 
 video {
-    display: block;
     width: 100%;
     height: 100%;
     object-fit: contain;
     background: #000;
 }
 
+.plyr {
+    width: 100%;
+    height: 100%;
+    --plyr-color-main: #e50914;
+    --plyr-video-background: #000;
+    --plyr-menu-background: #151515;
+    --plyr-menu-color: #fff;
+    --plyr-control-radius: 5px;
+}
+
+.plyr--video .plyr__controls {
+    padding: 15px 12px;
+    background: linear-gradient(
+        transparent,
+        rgba(0,0,0,.9)
+    );
+}
+
+.plyr__video-wrapper {
+    height: 100%;
+    background: #000;
+}
+
+.plyr__video-wrapper video {
+    object-fit: contain;
+}
+
+.plyr__control--overlaid {
+    background: #e50914;
+}
+
+.plyr__control--overlaid:hover {
+    background: #b80710;
+}
+
 .status {
-    color: var(--muted);
-    font-size: 13px;
-    text-align: center;
-    padding: 15px 5px 8px;
-    min-height: 38px;
+    position: absolute;
+    z-index: 5;
+    top: 15px;
+    left: 15px;
+    color: #fff;
+    background: rgba(20,20,20,.8);
+    border: 1px solid #333;
+    padding: 7px 11px;
+    border-radius: 5px;
+    font: 12px Arial, sans-serif;
+    pointer-events: none;
+    transition: opacity .4s;
 }
 
-.status.error {
-    color: #fb7185;
+.status::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: #e50914;
+    border-radius: 50%;
+    margin-right: 7px;
 }
 
-.controls-area {
-    padding: 17px 5px 5px;
+.status.hidden {
+    opacity: 0;
 }
 
-.url-label {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 9px;
-    display: block;
-}
-
-.url-form {
-    display: flex;
-    gap: 9px;
-}
-
-.url-input {
-    flex: 1;
-    min-width: 0;
-    height: 45px;
-    background: #080d16;
-    color: white;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0 12px;
-    outline: none;
-    font-size: 13px;
-}
-
-.url-input:focus {
-    border-color: var(--accent);
-}
-
-.play-button {
-    border: 0;
-    background: var(--accent);
-    color: white;
-    border-radius: 8px;
-    padding: 0 22px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.play-button:hover {
-    background: #be123c;
-}
-
-.footer {
-    text-align: center;
-    color: #667085;
-    font-size: 11px;
-    margin-top: 24px;
-}
-
-@media(max-width:600px) {
-    .container {
-        width: 100%;
-        padding: 15px 10px 30px;
-    }
-
-    .header {
-        margin-bottom: 17px;
-    }
-
-    .brand {
-        font-size: 18px;
-    }
-
-    .player-card {
-        padding: 6px;
-        border-radius: 11px;
-    }
-
-    .url-form {
-        flex-direction: column;
-    }
-
-    .url-input,
-    .play-button {
-        height: 45px;
-        width: 100%;
+@media (orientation: portrait) {
+    .plyr__video-wrapper video {
+        object-fit: contain;
     }
 }
 </style>
@@ -200,76 +114,52 @@ video {
 
 <body>
 
-<div class="container">
+<div class="player-container">
 
-    <header class="header">
-        <div class="brand">
-            <div class="logo">▶</div>
-            <span>EPICPLYR</span>
-        </div>
-        <div class="live">VIDEO PLAYER</div>
-    </header>
+    <div class="status" id="status">
+        EPICPLYR · Ready
+    </div>
 
-    <main class="player-card">
-
-        <div class="video-wrapper" id="videoWrapper">
-            <video
-                id="video"
-                controls
-                playsinline
-                webkit-playsinline
-                preload="metadata">
-            </video>
-        </div>
-
-        <div class="status" id="status">
-            Enter a video URL to start playback.
-        </div>
-
-        <div class="controls-area">
-            <label class="url-label" for="streamUrl">
-                VIDEO / STREAM URL
-            </label>
-
-            <form class="url-form" id="urlForm">
-                <input
-                    class="url-input"
-                    id="streamUrl"
-                    type="url"
-                    placeholder="Paste .m3u8 or .mp4 URL here"
-                    autocomplete="off"
-                    required>
-
-                <button class="play-button" type="submit">
-                    PLAY VIDEO
-                </button>
-            </form>
-        </div>
-
-    </main>
-
-    <footer class="footer">
-        POWERED BY EPICPLYR
-    </footer>
+    <video
+        id="video"
+        controls
+        playsinline
+        webkit-playsinline
+        crossorigin="anonymous"
+        preload="auto">
+    </video>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js"></script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
 <script>
 const video = document.getElementById("video");
 const statusBox = document.getElementById("status");
-const urlInput = document.getElementById("streamUrl");
-const urlForm = document.getElementById("urlForm");
 
 let hls = null;
+let player = null;
+let statusTimer = null;
 
-function setStatus(message, isError = false) {
+function setStatus(message) {
     statusBox.textContent = message;
-    statusBox.className = isError
-        ? "status error"
-        : "status";
+    statusBox.classList.remove("hidden");
+
+    clearTimeout(statusTimer);
+
+    statusTimer = setTimeout(() => {
+        statusBox.classList.add("hidden");
+    }, 3500);
 }
 
-function stopCurrentPlayer() {
+function destroyPlayer() {
+
+    if (player) {
+        player.destroy();
+        player = null;
+    }
+
     if (hls) {
         hls.destroy();
         hls = null;
@@ -280,51 +170,147 @@ function stopCurrentPlayer() {
     video.load();
 }
 
-function playStream(rawUrl, updateAddress = true) {
+function initializePlayer(qualityOptions = [0], isHLS = false) {
 
-    let stream;
+    if (player) {
+        player.destroy();
+        player = null;
+    }
+
+    const settings = isHLS
+        ? ["quality", "speed"]
+        : ["speed"];
+
+    player = new Plyr(video, {
+
+        autoplay: false,
+
+        controls: [
+            "play-large",
+            "play",
+            "progress",
+            "current-time",
+            "duration",
+            "mute",
+            "volume",
+            "settings",
+            "pip",
+            "airplay",
+            "fullscreen"
+        ],
+
+        fullscreen: {
+            enabled: true,
+            fallback: true,
+            iosNative: true
+        },
+
+        clickToPlay: true,
+        hideControls: true,
+        resetOnEnd: false,
+
+        keyboard: {
+            focused: true,
+            global: true
+        },
+
+        tooltips: {
+            controls: true,
+            seek: true
+        },
+
+        speed: {
+            selected: 1,
+            options: [0.5, 0.75, 1, 1.25, 1.5, 2]
+        },
+
+        quality: {
+            default: 0,
+            options: qualityOptions,
+            forced: true,
+            onChange: changeQuality
+        },
+
+        i18n: {
+            qualityLabel: {
+                0: "Auto"
+            }
+        }
+    });
+
+    player.on("playing", () => setStatus("EPICPLYR · Playing"));
+    player.on("waiting", () => setStatus("EPICPLYR · Buffering"));
+    player.on("error", () => setStatus("Playback error"));
+    player.on("canplay", () => setStatus("EPICPLYR · Ready"));
+}
+
+function changeQuality(height) {
+
+    if (!hls) return;
+
+    if (height === 0) {
+        hls.currentLevel = -1;
+        return;
+    }
+
+    const index = hls.levels.findIndex(
+        level => level.height === height
+    );
+
+    if (index !== -1) {
+        hls.currentLevel = index;
+    }
+}
+
+function startPlayer(streamURL) {
+
+    let parsedURL;
 
     try {
-        stream = new URL(rawUrl);
+        parsedURL = new URL(streamURL);
 
-        if (!["http:", "https:"].includes(stream.protocol)) {
+        if (!["http:", "https:"].includes(parsedURL.protocol)) {
             throw new Error("Invalid protocol");
         }
 
     } catch (error) {
-        setStatus("Please enter a valid HTTP or HTTPS video URL.", true);
+        setStatus("Invalid video URL");
         return;
     }
 
-    stopCurrentPlayer();
+    destroyPlayer();
 
-    const url = stream.href;
-    urlInput.value = url;
+    const isHLS = /\.m3u8$/i.test(parsedURL.pathname);
 
-    if (updateAddress) {
-        const newAddress = new URL(window.location.href);
-        newAddress.searchParams.set("url", url);
-
-        window.history.replaceState({}, "", newAddress);
-    }
-
-    const isHLS = /\.m3u8$/i.test(stream.pathname);
-
-    setStatus("Connecting to video...");
+    setStatus("EPICPLYR · Connecting");
 
     if (isHLS) {
 
-        if (window.Hls && Hls.isSupported()) {
+        if (Hls.isSupported()) {
 
             hls = new Hls({
-                enableWorker: true
+                enableWorker: true,
+                capLevelToPlayerSize: false,
+                startLevel: -1,
+                maxBufferLength: 30
             });
 
-            hls.loadSource(url);
+            hls.loadSource(parsedURL.href);
             hls.attachMedia(video);
 
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                setStatus("Stream ready. Press play.");
+
+                const heights = [
+                    ...new Set(
+                        hls.levels
+                            .map(level => level.height)
+                            .filter(height => height > 0)
+                    )
+                ].sort((a, b) => a - b);
+
+                initializePlayer([0, ...heights], true);
+
+                setStatus("EPICPLYR · Stream ready");
             });
 
             hls.on(Hls.Events.ERROR, (event, data) => {
@@ -332,13 +318,18 @@ function playStream(rawUrl, updateAddress = true) {
                 if (!data.fatal) return;
 
                 if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                    setStatus("Network error. Check the stream or try again.", true);
+
+                    setStatus("Network error · Retrying");
                     hls.startLoad();
+
                 } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                    setStatus("Recovering media playback...");
+
+                    setStatus("Recovering playback");
                     hls.recoverMediaError();
+
                 } else {
-                    setStatus("Unable to play this HLS stream.", true);
+
+                    setStatus("Stream unavailable");
                     hls.destroy();
                     hls = null;
                 }
@@ -346,53 +337,41 @@ function playStream(rawUrl, updateAddress = true) {
 
         } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
 
-            video.src = url;
-            setStatus("HLS stream ready. Press play.");
+            video.src = parsedURL.href;
+
+            initializePlayer([0], false);
+            setStatus("EPICPLYR · Ready");
 
         } else {
 
-            setStatus("HLS is not supported in this browser.", true);
+            setStatus("HLS not supported");
         }
 
     } else {
 
-        video.src = url;
-        setStatus("MP4 video loaded. Press play.");
+        video.src = parsedURL.href;
+
+        initializePlayer([0], false);
+        setStatus("EPICPLYR · MP4 Ready");
     }
 }
 
-urlForm.addEventListener("submit", function(event) {
-    event.preventDefault();
-    playStream(urlInput.value.trim());
+// Read URL parameter
+const params = new URLSearchParams(window.location.search);
+const streamURL = params.get("url");
+
+if (streamURL) {
+    startPlayer(streamURL);
+} else {
+    setStatus("EPICPLYR · No stream URL");
+}
+
+// Cleanup
+window.addEventListener("beforeunload", () => {
+    if (hls) hls.destroy();
+    if (player) player.destroy();
 });
 
-video.addEventListener("playing", () => {
-    setStatus("Playing video");
-});
-
-video.addEventListener("waiting", () => {
-    setStatus("Buffering video...");
-});
-
-video.addEventListener("error", () => {
-    if (video.error) {
-        setStatus("Video error. Check the URL, format or server access.", true);
-    }
-});
-
-window.addEventListener("DOMContentLoaded", () => {
-
-    const params = new URLSearchParams(window.location.search);
-    const stream = params.get("url");
-
-    if (stream) {
-        urlInput.value = stream;
-        playStream(stream, false);
-    } else {
-        setStatus("Ready. Paste an HLS or MP4 URL.");
-    }
-
-});
 </script>
 
 </body>
