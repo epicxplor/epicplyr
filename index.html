@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Live Player</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #080808;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.player-container {
+    width: 100%;
+    max-width: 1100px;
+}
+
+.header {
+    padding: 15px 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.video-box {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    background: #000;
+}
+
+.message {
+    color: #aaa;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="player-container">
+
+    <div class="header">MY LIVE PLAYER</div>
+
+    <div class="video-box">
+        <video id="video" controls playsinline
+        webkit-playsinline></video>
+    </div>
+
+    <div class="message" id="message">
+        Loading player...
+    </div>
+
+</div>
+
+<script>
+const video = document.getElementById("video");
+const message = document.getElementById("message");
+
+const params = new URLSearchParams(window.location.search);
+const streamURL = params.get("url");
+
+let hls;
+
+function showMessage(text) {
+    message.textContent = text;
+}
+
+function loadPlayer(url) {
+
+    if (!url) {
+        showMessage("No video URL provided.");
+        return;
+    }
+
+    try {
+        const parsed = new URL(url);
+
+        if (!["http:", "https:"].includes(parsed.protocol)) {
+            showMessage("Invalid video URL.");
+            return;
+        }
+    } catch (error) {
+        showMessage("Invalid video URL.");
+        return;
+    }
+
+    showMessage("Connecting to stream...");
+
+    if (Hls.isSupported()) {
+
+        hls = new Hls();
+
+        hls.loadSource(url);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            showMessage("Stream ready. Press play.");
+        });
+
+        hls.on(Hls.Events.ERROR, function(event, data) {
+            if (data.fatal) {
+                showMessage("Unable to play stream. Check the URL or server access.");
+                hls.destroy();
+            }
+        });
+
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+
+        video.src = url;
+        showMessage("Stream ready. Press play.");
+
+    } else {
+
+        showMessage("Your browser does not support this stream format.");
+
+    }
+}
+
+video.addEventListener("playing", () => {
+    showMessage("Playing");
+});
+
+video.addEventListener("waiting", () => {
+    showMessage("Buffering...");
+});
+
+video.addEventListener("error", () => {
+    showMessage("Video playback error.");
+});
+
+loadPlayer(streamURL);
+</script>
+
+</body>
+</html>
